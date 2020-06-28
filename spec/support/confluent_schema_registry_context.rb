@@ -4,6 +4,7 @@ shared_examples_for "a confluent schema registry client" do
   let(:logger) { Logger.new(StringIO.new) }
   let(:registry_url) { "http://registry.example.com" }
   let(:subject_name) { "some-subject" }
+  let(:fake_server_class) { FakeConfluentSchemaRegistryServer }
   let(:schema) do
     {
       type: "record",
@@ -15,8 +16,8 @@ shared_examples_for "a confluent schema registry client" do
   end
 
   before do
-    stub_request(:any, /^#{registry_url}/).to_rack(FakeConfluentSchemaRegistryServer)
-    FakeConfluentSchemaRegistryServer.clear
+    stub_request(:any, /^#{registry_url}/).to_rack(fake_server_class)
+    fake_server_class.clear
   end
 
   describe "#register and #fetch" do
