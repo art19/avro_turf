@@ -14,6 +14,7 @@ class AvroTurf::ConfluentSchemaRegistry
     client_key_data: nil
   )
     @logger = logger
+    @base_path = URI.parse(url).path.chomp('/')
     headers = {
       "Content-Type" => CONTENT_TYPE
     }
@@ -119,7 +120,15 @@ class AvroTurf::ConfluentSchemaRegistry
 
   def request(path, **options)
     options = { expects: 200 }.merge!(options)
-    response = @connection.request(path: path, **options)
+    response = @connection.request(path: path_with_prefix(path), **options)
     JSON.parse(response.body)
+  end
+
+  ##
+  # Get the final path to request from the registry server
+  def path_with_prefix(path)
+    return path if @base_path == ''
+
+    "#{@base_path}#{path}"
   end
 end

@@ -1,6 +1,7 @@
 require 'webmock/rspec'
 require 'avro_turf/confluent_schema_registry'
 require 'avro_turf/test/fake_confluent_schema_registry_server'
+require 'avro_turf/test/fake_prefixed_confluent_schema_registry_server'
 
 describe AvroTurf::ConfluentSchemaRegistry do
   let(:client_cert) { "test client cert" }
@@ -8,6 +9,20 @@ describe AvroTurf::ConfluentSchemaRegistry do
   let(:client_key_pass) { "test client key password" }
 
   it_behaves_like "a confluent schema registry client" do
+    let(:registry) {
+      described_class.new(
+        registry_url,
+        logger: logger,
+        client_cert: client_cert,
+        client_key: client_key,
+        client_key_pass: client_key_pass
+      )
+    }
+  end
+
+  it_behaves_like "a confluent schema registry client" do
+    let(:registry_url) { 'http://registry.example.com/some-prefix' }
+    let(:fake_server_class) { FakePrefixedConfluentSchemaRegistryServer }
     let(:registry) {
       described_class.new(
         registry_url,
